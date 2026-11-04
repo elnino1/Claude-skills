@@ -1,0 +1,73 @@
+name: Auto Create PR
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Build description from commits
+        run: |
+          git fetch origin main
+          RANGE="origin/main..HEAD"
+          COUNT=$(git rev-list --count --no-merges "$RANGE")
+
+          # Title: the commit subject if there is only one commit, else the branch name
+          if [ "$COUNT" -eq 1 ]; then
+            git log -1 --no-merges --format='%s' "$RANGE" > title.txt
+          else
+            echo "${GITHUB_REF_NAME}" > title.txt
+          fi
+
+          {
+            echo "<!-- auto-commits:start -->"
+            echo "## Commits ($COUNT)"
+            echo
+            # One section per commit (oldest first): subject + body.
+            # cat -s squeezes the blank-line runs left by %b and the entry separator.
+            git log --no-merges --reverse --format='### %s%n%n%b%n' "$RANGE" \
+              | cat -s
+            echo "<!-- auto-commits:end -->"
+          } > commits.md
+
+      - name: Create or update PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr=$(gh pr list --head "${GITHUB_REF_NAME}" --base main --state open \
+            --json number --jq '.[0].number // empty')
+
+          if [ -z "$pr" ]; then
+            echo "Creating a new PR..."
+            gh pr create --base main --head "${GITHUB_REF_NAME}" \
+              --title "$(cat title.txt)" --body-file commits.md
+          else
+            echo "Updating the commit list of PR #$pr..."
+            gh pr view "$pr" --json body --jq '.body' > current.md
+            # Replace only the auto-generated section, keep anything written by hand around it
+            python3 - <<'PY'
+          import re
+          current = open("current.md").read()
+          new = open("commits.md").read().strip()
+          pattern = re.compile(r"<!-- auto-commits:start -->.*?<!-- auto-commits:end -->", re.S)
+          if pattern.search(current):
+              body = pattern.sub(lambda _: new, current)
+          else:
+              body = current.rstrip() + "\n\n" + new
+          open("body.md", "w").write(body)
+          PY
+            gh pr edit "$pr" --body-file body.md
+          fi

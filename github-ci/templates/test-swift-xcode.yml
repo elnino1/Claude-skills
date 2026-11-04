@@ -1,0 +1,30 @@
+name: Test
+
+# Runs on every push (all branches). PRs opened by auto_pr.yml use GITHUB_TOKEN,
+# which does not trigger `pull_request` workflows — the push run's status shows on the PR instead.
+on:
+  push:
+    branches: [ "**" ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test:
+    name: Xcode Build & Test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Xcode version
+        run: xcodebuild -version
+
+      - name: Build & Test
+        # __PROJECT_FLAG__ : -project App.xcodeproj  or  -workspace App.xcworkspace
+        # __DESTINATION__  : platform=macOS  or  platform=iOS Simulator,name=<device available on macos-latest>
+        run: |
+          xcodebuild test -quiet \
+            __PROJECT_FLAG__ \
+            -scheme "__SCHEME__" \
+            -destination "__DESTINATION__" \
+            CODE_SIGNING_ALLOWED=NO

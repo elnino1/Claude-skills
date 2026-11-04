@@ -1,0 +1,26 @@
+name: Test
+
+# Runs on every push (all branches). PRs opened by auto_pr.yml use GITHUB_TOKEN,
+# which does not trigger `pull_request` workflows — the push run's status shows on the PR instead.
+on:
+  push:
+    branches: [ "**" ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test:
+    name: Swift Build & Test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Swift version
+        run: swift --version
+
+      - name: Build
+        run: swift build
+
+      - name: Tests
+        run: swift test

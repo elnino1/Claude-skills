@@ -1,0 +1,34 @@
+name: Test
+
+# Runs on every push (all branches). PRs opened by auto_pr.yml use GITHUB_TOKEN,
+# which does not trigger `pull_request` workflows — the push run's status shows on the PR instead.
+on:
+  push:
+    branches: [ "**" ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Fmt, Clippy & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Rustfmt
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Tests
+        run: cargo test --all-features
