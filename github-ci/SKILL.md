@@ -37,6 +37,7 @@ Why `test.yml` runs on `push` (all branches) and not `pull_request`: PRs created
      - `__PROJECT__`: `<name>.xcodeproj`, where `<name>` is the `name:` key of `project.yml`.
      - `__SCHEME__`: the app target (XcodeGen creates a scheme for targets with a `scheme:` key).
      - `__ACTION__`: `test` if that scheme lists `testTargets`, else `build`, and suggest adding a test target (Swift Testing).
+     - Runner: `runs-on` must provide the Xcode major the project is developed with (`xcodebuild -version` locally): code using the newest SDK fails on an older image. Check the labels in https://github.com/actions/runner-images (e.g. `xcode-27`, `macos-26`).
      - SwiftLint: if the repo has no `.swiftlint.yml`, copy `templates/swiftlint.yml` (drop `observable_object_legacy` if the deployment target is below iOS 17), then freeze existing violations with `swiftlint lint --write-baseline .swiftlint-baseline.json` and commit both files. If the user doesn't want lint, remove the `lint` job.
      - Signing settings (team, bundle id) are not needed: CI builds with `CODE_SIGNING_ALLOWED=NO`. A project whose `project.yml` references a gitignored xcconfig must use `#include?` so generation and build still work in CI.
    - The workflow `name:` must stay exactly `Test` — `release.yml` listens to it by name.
