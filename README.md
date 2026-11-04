@@ -10,7 +10,7 @@ matches its description, or explicitly via `/<skill-name>`.
 
 | Skill | Purpose |
 |---|---|
-| [`github-ci`](github-ci/) | Sets up the standard GitHub Actions CI for a Python, Rust or Swift (SwiftPM / Xcode) repository: a `Test` workflow (lint + tests on every push), `auto_pr` (opens / refreshes a PR to the default branch automatically) and `release` (semver tag + GitHub Release after green tests). See its [README](github-ci/README.md). |
+| [`github-ci`](github-ci/) | Sets up the standard GitHub Actions CI for a Python, Rust or Swift (SwiftPM / Xcode / iOS with XcodeGen) repository: a `Test` workflow (lint + tests on every push), `auto_pr` (opens / refreshes a PR to the default branch automatically) and `release` (semver tag + GitHub Release after green tests). See its [README](github-ci/README.md). |
 
 ## Installation
 

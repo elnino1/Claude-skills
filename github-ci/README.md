@@ -20,6 +20,7 @@ Three workflows in `.github/workflows/`:
 | `test-rust.yml` | `Cargo.toml` | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` (+ `--workspace` when needed), with caching |
 | `test-swift-spm.yml` | `Package.swift` | `swift build` + `swift test` on `macos-latest` |
 | `test-swift-xcode.yml` | `*.xcodeproj` / `*.xcworkspace` | `xcodebuild test` (shared scheme and destination to fill in) |
+| `test-ios-xcodegen.yml` | `project.yml` (XcodeGen) with an iOS or watchOS target | `xcodegen generate`, newest iPhone or Apple Watch simulator picked at run time, `xcodebuild test` (or `build` without test target), unsigned; SwiftLint job with `templates/swiftlint.yml` and a baseline for existing violations |
 
 ## Usage
 
@@ -47,6 +48,7 @@ gh api -X PUT repos/OWNER/REPO/actions/permissions/workflow \
 - The `Test` workflow name must not change: `release.yml` listens to it by name.
 - By default, a release is just the tag and the changelog. Injecting the version into
   `Cargo.toml`, `pyproject.toml` or Xcode, and attaching artifacts, is optional.
+- iOS XcodeGen template: no signing in CI, so it also fits apps signed with a free Apple ID (Personal Team). Distribution (TestFlight / App Store) needs a paid developer account and is not covered.
 - Prefix commits with Conventional Commits types (`feat:`, `fix:`, `ci:`…): the bump type depends on them.
 
 ## Installation
