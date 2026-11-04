@@ -20,7 +20,7 @@ Three workflows in `.github/workflows/`:
 | `test-rust.yml` | `Cargo.toml` | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` (+ `--workspace` when needed), with caching |
 | `test-swift-spm.yml` | `Package.swift` | `swift build` + `swift test` on `macos-latest` |
 | `test-swift-xcode.yml` | `*.xcodeproj` / `*.xcworkspace` | `xcodebuild test` (shared scheme and destination to fill in) |
-| `test-ios-xcodegen.yml` | `project.yml` (XcodeGen) with an iOS target | `xcodegen generate`, newest iPhone simulator picked at run time, `xcodebuild test` (or `build` without test target), unsigned; SwiftLint job with `templates/swiftlint.yml` and a baseline for existing violations |
+| `test-ios-xcodegen.yml` | `project.yml` (XcodeGen) with an iOS or watchOS target | `xcodegen generate`, newest iPhone or Apple Watch simulator picked at run time, `xcodebuild test` (or `build` without test target), unsigned; SwiftLint job with `templates/swiftlint.yml` and a baseline for existing violations |
 
 ## Usage
 
