@@ -12,6 +12,29 @@ matches its description, or explicitly via `/<skill-name>`.
 |---|---|
 | [`github-ci`](github-ci/) | Sets up the standard GitHub Actions CI for a Python, Rust or Swift (SwiftPM / Xcode / iOS with XcodeGen) repository: a `Test` workflow (lint + tests on every push), `auto_pr` (opens / refreshes a PR to the default branch automatically) and `release` (semver tag + GitHub Release after green tests). See its [README](github-ci/README.md). |
 
+## Devcontainer support
+
+[`devcontainer/`](devcontainer/) holds the host-side glue for the
+[trailofbits/claude-code-devcontainer](https://github.com/trailofbits/claude-code-devcontainer) template
+(`devc`). The template's `devcontainer.json` bind-mounts this repository read-only at `/opt/claude-skills`
+and runs `devcontainer/link-host-claude.sh` as its `postStartCommand`, which:
+
+- symlinks every skill of this repository into the container's `~/.claude/skills/`;
+- symlinks the host's `~/.claude/CLAUDE.md` (mounted at `/opt/host-claude/`);
+- registers `devcontainer/guard-destructive.py` as a `PreToolUse` hook that blocks destructive Bash
+  commands. The mount is read-only, so Claude cannot alter the hook from inside the container.
+
+Required additions to the template's `devcontainer.json`:
+
+```jsonc
+"mounts": [
+  // ...
+  "source=${localEnv:HOME}/dev/perso/misc/Claude-skills,target=/opt/claude-skills,type=bind,readonly",
+  "source=${localEnv:HOME}/.claude/CLAUDE.md,target=/opt/host-claude/CLAUDE.md,type=bind,readonly"
+],
+"postStartCommand": "bash /opt/claude-skills/devcontainer/link-host-claude.sh"
+```
+
 ## Installation
 
 Clone the repository:
